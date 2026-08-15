@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#071513">
+  <meta name="description" content="Prompt2Point is a prompt-driven, LiDAR-free dataset for dynamic volumetric quality assessment, with synchronized mesh and point-cloud sequences.">
+  <meta property="og:title" content="Prompt2Point — Dynamic Volumetric Dataset">
+  <meta property="og:description" content="Clean, controllable mesh ground truths and synchronized dynamic point clouds for volumetric quality research.">
+  <meta property="og:image" content="assets/avatar-gallery.webp">
+  <title>Prompt2Point — Dynamic Volumetric Dataset</title>
+  <style>
+    :root {
+      --ink: #ecfdf8;
+      --muted: #9bb9b2;
+      --bg: #06110f;
+      --panel: #0b1b18;
+      --panel-2: #102620;
+      --line: rgba(151, 255, 220, .14);
+      --mint: #53f2bd;
+      --cyan: #46cfe1;
+      --yellow: #f7c95f;
+      --coral: #ff796c;
+      --radius: 22px;
+      --shadow: 0 24px 70px rgba(0, 0, 0, .28);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 12% 5%, rgba(70, 207, 225, .12), transparent 30rem),
+        radial-gradient(circle at 88% 35%, rgba(83, 242, 189, .08), transparent 34rem),
+        linear-gradient(180deg, #071513 0%, #06110f 48%, #081713 100%);
+    }
+    a { color: inherit; }
+    img, video { display: block; max-width: 100%; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid var(--yellow); outline-offset: 4px; }
+
+    .shell { width: min(1160px, calc(100% - 40px)); margin-inline: auto; }
+    .eyebrow {
+      margin: 0 0 12px;
+      color: var(--mint);
+      font-size: .76rem;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h2 { margin-bottom: 14px; font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.08; letter-spacing: -.04em; }
+    h3 { line-height: 1.25; }
+    .lede { max-width: 720px; color: var(--muted); font-size: clamp(1rem, 1.8vw, 1.16rem); }
+    .section { padding: 104px 0; scroll-margin-top: 72px; }
+    .section-head { margin-bottom: 42px; }
+
+    .nav {
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 20;
+      border-bottom: 1px solid transparent;
+      transition: background .25s, border-color .25s;
+    }
+    .nav.scrolled { border-color: var(--line); background: rgba(6, 17, 15, .86); backdrop-filter: blur(18px); }
+    .nav-inner { display: flex; height: 68px; align-items: center; justify-content: space-between; gap: 28px; }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; font-weight: 850; letter-spacing: -.02em; }
+    .brand-mark { position: relative; width: 27px; height: 27px; }
+    .brand-mark i { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 14px var(--mint); }
+    .brand-mark i:nth-child(1) { top: 2px; left: 3px; }
+    .brand-mark i:nth-child(2) { top: 4px; right: 2px; }
+    .brand-mark i:nth-child(3) { bottom: 2px; left: 10px; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { color: var(--muted); font-size: .87rem; font-weight: 650; text-decoration: none; transition: color .2s; }
+    .nav-links a:hover { color: var(--ink); }
+
+    .hero { position: relative; min-height: 100svh; display: grid; place-items: center; overflow: hidden; padding: 120px 0 80px; }
+    #cloud { position: absolute; inset: 0; z-index: -1; width: 100%; height: 100%; opacity: .62; }
+    .hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(6,17,15,.86) 0%, rgba(6,17,15,.48) 55%, rgba(6,17,15,.78) 100%); }
+    .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; align-items: center; gap: 56px; }
+    .venue { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 22px; padding: 7px 13px; border: 1px solid rgba(83,242,189,.28); border-radius: 99px; color: var(--mint); background: rgba(83,242,189,.07); font-size: .72rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+    .venue::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 12px var(--mint); }
+    h1 { margin-bottom: 22px; font-size: clamp(3.3rem, 8vw, 6.8rem); line-height: .9; letter-spacing: -.075em; }
+    h1 span { color: transparent; background: linear-gradient(105deg, var(--mint), var(--cyan)); background-clip: text; -webkit-background-clip: text; }
+    .hero-copy { max-width: 690px; margin-bottom: 30px; color: #bfd5d0; font-size: clamp(1.05rem, 2vw, 1.28rem); }
+    .authors { margin-bottom: 30px; color: var(--muted); font-size: .94rem; }
+    .authors strong { color: var(--ink); }
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; }
+    .btn { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 9px; padding: 0 20px; border: 1px solid var(--line); border-radius: 12px; font-size: .88rem; font-weight: 780; text-decoration: none; transition: transform .2s, background .2s, border-color .2s; }
+    .btn:hover { transform: translateY(-2px); border-color: rgba(83,242,189,.55); }
+    .btn.primary { border-color: transparent; color: #03251b; background: var(--mint); }
+    .btn.secondary { background: rgba(11,27,24,.68); }
+    .hero-visual { position: relative; min-height: 570px; display: grid; place-items: center; }
+    .hero-visual::before { content: ""; position: absolute; width: 76%; aspect-ratio: 1; border: 1px solid rgba(83,242,189,.2); border-radius: 50%; box-shadow: 0 0 90px rgba(83,242,189,.1), inset 0 0 80px rgba(70,207,225,.05); animation: orbit 14s linear infinite; }
+    .hero-visual::after { content: "OBJ  ↔  PLY"; position: absolute; right: 4%; bottom: 15%; padding: 9px 14px; border: 1px solid var(--line); border-radius: 99px; color: var(--mint); background: rgba(6,17,15,.84); font: 750 .72rem ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
+    .hero-visual img { position: relative; z-index: 2; width: 115%; max-width: none; filter: drop-shadow(0 35px 45px rgba(0,0,0,.45)); mix-blend-mode: screen; }
+    @keyframes orbit { to { transform: rotate(360deg); } }
+
+    .stats { position: relative; z-index: 3; margin-top: -45px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(11,27,24,.89); box-shadow: var(--shadow); backdrop-filter: blur(16px); }
+    .stat { padding: 28px 30px; border-right: 1px solid var(--line); }
+    .stat:last-child { border-right: 0; }
+    .stat strong { display: block; margin-bottom: 3px; color: var(--mint); font-size: 2rem; line-height: 1; letter-spacing: -.05em; }
+    .stat span { color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+
+    .about-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 68px; align-items: start; }
+    .abstract { color: #c4d9d4; font-size: 1.04rem; }
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .feature { min-height: 175px; padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: linear-gradient(145deg, rgba(16,38,32,.96), rgba(9,24,20,.96)); }
+    .feature-icon { display: grid; width: 38px; height: 38px; margin-bottom: 30px; place-items: center; border-radius: 11px; color: #03251b; background: var(--mint); font-weight: 900; }
+    .feature h3 { margin-bottom: 7px; font-size: 1rem; }
+    .feature p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.5; }
+
+    .pipeline { border-block: 1px solid var(--line); background: rgba(11,27,24,.6); }
+    .steps { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .steps::before { content: ""; position: absolute; top: 36px; right: 10%; left: 10%; height: 1px; background: linear-gradient(90deg, var(--mint), var(--cyan)); opacity: .5; }
+    .step { position: relative; z-index: 1; }
+    .step-num { display: grid; width: 72px; height: 72px; margin-bottom: 22px; place-items: center; border: 1px solid rgba(83,242,189,.32); border-radius: 50%; color: var(--mint); background: var(--panel); font: 800 1rem ui-monospace, SFMono-Regular, Menlo, monospace; box-shadow: 0 0 0 8px var(--bg); }
+    .step h3 { margin-bottom: 7px; font-size: 1.03rem; }
+    .step p { color: var(--muted); font-size: .86rem; }
+    .format-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .format { padding: 4px 9px; border: 1px solid var(--line); border-radius: 6px; color: var(--cyan); font: 750 .68rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .video-toolbar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .filter { padding: 8px 14px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); background: var(--panel); cursor: pointer; font: inherit; font-size: .78rem; font-weight: 750; }
+    .filter.active { border-color: var(--mint); color: #03251b; background: var(--mint); }
+    .video-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .video-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); box-shadow: 0 16px 50px rgba(0,0,0,.18); transition: transform .25s, border-color .25s; }
+    .video-card:hover { transform: translateY(-4px); border-color: rgba(83,242,189,.44); }
+    .video-card.hidden { display: none; }
+    .video-frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #030807; }
+    .video-frame video { width: 100%; height: 100%; object-fit: cover; }
+    .video-label { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 17px 20px; }
+    .video-label h3 { margin: 0; font-size: .98rem; }
+    .video-label span { color: var(--muted); font-size: .72rem; }
+    .video-card.featured { grid-column: 1 / -1; }
+
+    .paper-figures { border-block: 1px solid var(--line); background: rgba(11,27,24,.62); }
+    .figure-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 22px; }
+    figure { margin: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: #f7f8f7; }
+    figure img { width: 100%; height: 390px; object-fit: contain; }
+    figcaption { padding: 16px 20px; border-top: 1px solid #dbe4e1; color: #344a45; background: #edf2f0; font-size: .8rem; }
+    figcaption strong { color: #102620; }
+
+    .data-layout { display: grid; grid-template-columns: .8fr 1.2fr; gap: 44px; align-items: start; }
+    .avatars { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+    .avatar-pill { padding: 7px 11px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: .75rem; }
+    .data-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 18px; }
+    table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+    th, td { padding: 14px 16px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    th { color: var(--mint); background: var(--panel-2); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; }
+    td { color: #c0d5d0; }
+    tr:last-child td { border-bottom: 0; }
+    td:first-child { color: var(--ink); font-weight: 750; }
+
+    .research-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 38px; }
+    .research-card { padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+    .research-card b { display: block; margin-bottom: 14px; color: var(--yellow); font: 800 .73rem ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .08em; }
+    .research-card h3 { margin-bottom: 9px; font-size: 1.02rem; }
+    .research-card p { margin: 0; color: var(--muted); font-size: .84rem; }
+
+    .citation { border-block: 1px solid var(--line); background: rgba(11,27,24,.65); }
+    .cite-box { position: relative; margin-top: 28px; padding: 24px; overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: #06100e; }
+    .cite-box pre { margin: 0; overflow-x: auto; color: #bae7d9; font: .78rem/1.7 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre; }
+    .copy { position: absolute; top: 12px; right: 12px; padding: 7px 11px; border: 1px solid var(--line); border-radius: 8px; color: var(--ink); background: var(--panel-2); cursor: pointer; font: inherit; font-size: .72rem; }
+
+    footer { padding: 54px 0; color: var(--muted); font-size: .82rem; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+    .footer-links { display: flex; gap: 18px; }
+    .footer-links a { text-decoration: none; }
+
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .reveal { opacity: 1; transform: none; } .hero-visual::before { animation: none; } }
+    @media (max-width: 900px) {
+      .nav-links a:not(.nav-paper) { display: none; }
+      .hero-grid, .about-grid, .data-layout { grid-template-columns: 1fr; }
+      .hero { text-align: center; }
+      .hero-copy { margin-inline: auto; }
+      .actions { justify-content: center; }
+      .hero-visual { min-height: 390px; }
+      .hero-visual img { width: min(720px, 120%); }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stat:nth-child(2) { border-right: 0; }
+      .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .steps { grid-template-columns: 1fr 1fr; gap: 30px; }
+      .steps::before { display: none; }
+      .figure-grid { grid-template-columns: 1fr; }
+      .research-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 28px, 1160px); }
+      .section { padding: 76px 0; }
+      h1 { font-size: clamp(3rem, 18vw, 4.8rem); }
+      .hero-visual { min-height: 300px; }
+      .stats { margin-top: -25px; }
+      .stats-grid, .feature-grid, .steps, .video-grid { grid-template-columns: 1fr; }
+      .stat { border-right: 0; border-bottom: 1px solid var(--line); }
+      .stat:nth-child(3) { border-bottom: 1px solid var(--line); }
+      .video-card.featured { grid-column: auto; }
+      figure img { height: 270px; }
+      .footer-inner { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav" aria-label="Main navigation">
+    <div class="shell nav-inner">
+      <a class="brand" href="#top"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>Prompt2Point</a>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#sequences">Sequences</a>
+        <a href="#dataset">Dataset</a>
+        <a class="nav-paper" href="https://ieeexplore.ieee.org/abstract/document/11617375">Paper ↗</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero" id="top">
+      <canvas id="cloud" aria-hidden="true"></canvas>
+      <div class="shell hero-grid">
+        <div>
+          <div class="venue">QoMEX 2026 submission</div>
+          <h1>Prompt<span>2</span>Point</h1>
+          <p class="hero-copy">A reference-based dataset for dynamic volumetric quality assessment—generated from prompts, free from LiDAR acquisition noise, and released in synchronized mesh and point-cloud formats.</p>
+          <p class="authors"><strong>Jashanjot Singh Sidhu</strong> &nbsp;·&nbsp; <strong>Abdelhak Bentaleb</strong><br>Concordia University, Montréal, Canada</p>
+          <div class="actions">
+            <a class="btn primary" href="https://github.com/IN2GM-Lab/Prompt2Point">Explore dataset <span aria-hidden="true">↗</span></a>
+            <a class="btn secondary" href="https://ieeexplore.ieee.org/abstract/document/11617375">Read the paper <span aria-hidden="true">↗</span></a>
+            <a class="btn secondary" href="#sequences">Watch sequences <span aria-hidden="true">▶</span></a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true"><img src="assets/avatar-gallery.webp" alt=""></div>
+      </div>
+    </section>
+
+    <aside class="stats shell reveal" aria-label="Dataset at a glance">
+      <div class="stats-grid">
+        <div class="stat"><strong>25</strong><span>Dynamic sequences</span></div>
+        <div class="stat"><strong>5 × 5</strong><span>Avatars × motions</span></div>
+        <div class="stat"><strong>OBJ + PLY</strong><span>Synchronized formats</span></div>
+        <div class="stat"><strong>90–500</strong><span>Frames per sequence</span></div>
+      </div>
+    </aside>
+
+    <section class="section" id="about">
+      <div class="shell about-grid">
+        <div class="reveal">
+          <p class="eyebrow">Why Prompt2Point</p>
+          <h2>A cleaner reference for volumetric quality.</h2>
+          <p class="abstract">Captured volumetric datasets inherit sensor noise, reconstruction artifacts, and uncertain surface geometry. That makes it difficult to isolate the distortions introduced by compression itself. Prompt2Point starts from generated, topology-consistent animated meshes, then derives a synchronized point cloud for every frame.</p>
+          <p class="abstract">The result is a controllable benchmark for full-reference quality metrics, perceptual modeling, compression analysis, and Generative 3D Quality of Experience research.</p>
+        </div>
+        <div class="feature-grid reveal">
+          <article class="feature"><div class="feature-icon">◇</div><h3>LiDAR-free</h3><p>No specialized capture studio, multi-camera reconstruction, or sensor acquisition noise.</p></article>
+          <article class="feature"><div class="feature-icon">⇄</div><h3>Dual representation</h3><p>Per-frame textured OBJ meshes and colored PLY point clouds stay synchronized.</p></article>
+          <article class="feature"><div class="feature-icon">⌁</div><h3>Dynamic motion</h3><p>Locomotion, acrobatics, combat, gestures, climbing, and dance motions.</p></article>
+          <article class="feature"><div class="feature-icon">⊙</div><h3>Composite scenes</h3><p>Multi-object configurations introduce controllable interaction and natural occlusion.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section pipeline" id="pipeline">
+      <div class="shell">
+        <div class="section-head reveal"><p class="eyebrow">Reproducible workflow</p><h2>From language to moving geometry.</h2><p class="lede">A compact pipeline turns a semantic prompt into frame-addressable volumetric media for systems and QoE experiments.</p></div>
+        <div class="steps reveal">
+          <article class="step"><div class="step-num">01</div><h3>Prompt an asset</h3><p>A text or image prompt produces a textured static 3D object.</p><div class="format-row"><span class="format">TEXT</span><span class="format">IMAGE</span></div></article>
+          <article class="step"><div class="step-num">02</div><h3>Rig and animate</h3><p>Automated rigging applies articulated motion and exports the full animation.</p><div class="format-row"><span class="format">FBX</span></div></article>
+          <article class="step"><div class="step-num">03</div><h3>Extract each frame</h3><p>Blender samples the timeline into textured, temporally ordered meshes.</p><div class="format-row"><span class="format">OBJ</span><span class="format">MTL</span></div></article>
+          <article class="step"><div class="step-num">04</div><h3>Sample point clouds</h3><p>CloudCompare or PyMeshLab transfers textured surfaces into colored points.</p><div class="format-row"><span class="format">PLY</span><span class="format">VOX10</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="sequences">
+      <div class="shell">
+        <div class="section-head reveal"><p class="eyebrow">Dynamic previews</p><h2>Meet the dataset in motion.</h2><p class="lede">Five semantically distinct avatars and a combined multi-object scene, rendered from the released volumetric sequences.</p></div>
+        <div class="video-toolbar reveal" role="group" aria-label="Filter previews">
+          <button class="filter active" data-filter="all">All sequences</button>
+          <button class="filter" data-filter="single">Single avatar</button>
+          <button class="filter" data-filter="combined">Composite scene</button>
+        </div>
+        <div class="video-grid reveal">
+          <article class="video-card featured" data-type="combined"><div class="video-frame"><video src="videos/combined.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Combined scene</h3><span>Multi-object · occlusion-aware</span></div></article>
+          <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/girl.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Girl</h3><span>Locomotion · acrobatics</span></div></article>
+          <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/robot.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Robot</h3><span>Combat · dynamic kicks</span></div></article>
+          <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/solider.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Soldier</h3><span>Actions · expressive gestures</span></div></article>
+          <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/wsoldier.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>WSoldier</h3><span>Climbing · combat</span></div></article>
+          <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/zombiedoll.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>ZombieDoll</h3><span>Dance · rhythmic motion</span></div></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section paper-figures" aria-labelledby="figures-title">
+      <div class="shell">
+        <div class="section-head reveal"><p class="eyebrow">From the paper</p><h2 id="figures-title">Designed for visual and geometric diversity.</h2></div>
+        <div class="figure-grid reveal">
+          <figure><img src="assets/avatar-gallery.webp" alt="The five Prompt2Point avatars: Girl, Robot, Soldier, WSoldier, and ZombieDoll"><figcaption><strong>Dataset avatars.</strong> Five identities spanning stylized, robotic, and human-like geometry.</figcaption></figure>
+          <figure><img src="assets/combined-scene.webp" alt="Multiple poses from a dynamic Robot animation"><figcaption><strong>Dynamic animation.</strong> Representative frames preserve detailed geometry through articulated motion.</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="dataset">
+      <div class="shell">
+        <div class="data-layout">
+          <div class="reveal"><p class="eyebrow">Dataset contents</p><h2>Built to be used, extended, and measured.</h2><p class="lede">Every avatar is paired with five motion categories. The release also includes underlying animated assets and a documented Blender workflow for producing new spatial layouts and motion pairings.</p><div class="avatars"><span class="avatar-pill">Girl</span><span class="avatar-pill">Robot</span><span class="avatar-pill">Soldier</span><span class="avatar-pill">WSoldier</span><span class="avatar-pill">ZombieDoll</span></div></div>
+          <div class="data-table-wrap reveal">
+            <table>
+              <thead><tr><th>Avatar</th><th>Frames</th><th>Mean points / frame</th><th>Mesh vertices</th></tr></thead>
+              <tbody>
+                <tr><td>Girl</td><td>116–196</td><td>1.15M–1.44M</td><td>≈ 329.6K</td></tr>
+                <tr><td>Robot</td><td>91–300</td><td>1.09M–1.16M</td><td>≈ 65.5K</td></tr>
+                <tr><td>Soldier</td><td>158–500</td><td>0.86M–0.95M</td><td>≈ 285.1K</td></tr>
+                <tr><td>WSoldier</td><td>158–440</td><td>0.97M–1.10M</td><td>≈ 412.4K</td></tr>
+                <tr><td>ZombieDoll</td><td>144–406</td><td>1.05M–1.16M</td><td>≈ 160.0K</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="research-grid reveal">
+          <article class="research-card"><b>01 / QUALITY</b><h3>Full-reference assessment</h3><p>Calibrate objective geometry and attribute metrics against clean mesh ground truth.</p></article>
+          <article class="research-card"><b>02 / SYSTEMS</b><h3>Compression & streaming</h3><p>Benchmark V-PCC, viewport adaptation, tile selection, and visibility-aware culling.</p></article>
+          <article class="research-card"><b>03 / PERCEPTION</b><h3>Generative 3D QoE</h3><p>Study compression-induced and generation-induced artifacts under controlled motion.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section citation" id="citation">
+      <div class="shell reveal">
+        <p class="eyebrow">Citation</p><h2>Use Prompt2Point in your research.</h2><p class="lede">Citation details will be updated when the final proceedings record is available.</p>
+        <div class="cite-box"><button class="copy" type="button">Copy BibTeX</button><pre id="bibtex">@inproceedings{sidhu2026prompt2point,
+  title     = {Prompt2Point: A Reference-Based Dataset for Dynamic Volumetric Quality Assessment},
+  author    = {Sidhu, Jashanjot Singh and Bentaleb, Abdelhak},
+  booktitle = {IEEE International Conference on Quality of Multimedia Experience (QoMEX)},
+  year      = {2026}
+}</pre></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-inner"><div><strong>Prompt2Point</strong><br>IN2GM Lab · Concordia University</div><div class="footer-links"><a href="https://github.com/IN2GM-Lab/Prompt2Point">GitHub</a><a href="https://ieeexplore.ieee.org/abstract/document/11617375">Paper</a><a href="mailto:jashanjot.sidhu@mail.concordia.ca">Contact</a></div></div>
+  </footer>
+
+  <script>
+    const nav = document.querySelector('.nav');
+    addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 20), { passive: true });
+
+    const reveal = new IntersectionObserver(entries => entries.forEach(entry => {
+      if (entry.isIntersecting) { entry.target.classList.add('visible'); reveal.unobserve(entry.target); }
+    }), { threshold: .12 });
+    document.querySelectorAll('.reveal').forEach(el => reveal.observe(el));
+
+    document.querySelectorAll('.filter').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('.filter').forEach(item => item.classList.remove('active'));
+      button.classList.add('active');
+      document.querySelectorAll('.video-card').forEach(card => {
+        const show = button.dataset.filter === 'all' || card.dataset.type === button.dataset.filter;
+        card.classList.toggle('hidden', !show);
+        if (!show) card.querySelector('video').pause();
+      });
+    }));
+
+    const videoObserver = new IntersectionObserver(entries => entries.forEach(entry => {
+      const video = entry.target;
+      if (entry.isIntersecting) video.play().catch(() => {}); else video.pause();
+    }), { threshold: .65 });
+    document.querySelectorAll('video').forEach(video => videoObserver.observe(video));
+
+    document.querySelector('.copy').addEventListener('click', async event => {
+      try {
+        await navigator.clipboard.writeText(document.querySelector('#bibtex').textContent);
+        event.currentTarget.textContent = 'Copied!';
+        setTimeout(() => event.currentTarget.textContent = 'Copy BibTeX', 1600);
+      } catch { event.currentTarget.textContent = 'Select text to copy'; }
+    });
+
+    const canvas = document.querySelector('#cloud');
+    const ctx = canvas.getContext('2d');
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let points = [], width = 0, height = 0, frame;
+    function resizeCloud() {
+      const dpr = Math.min(devicePixelRatio || 1, 2);
+      width = innerWidth; height = innerHeight;
+      canvas.width = width * dpr; canvas.height = height * dpr;
+      canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      points = Array.from({ length: Math.min(230, Math.floor(width / 5)) }, (_, i) => {
+        const angle = i * 2.39996, radius = Math.sqrt(i) * Math.min(width, height) * .023;
+        return { angle, radius, speed: .0004 + Math.random() * .001, size: .7 + Math.random() * 1.8, depth: .25 + Math.random() * .75 };
+      });
+    }
+    function drawCloud(t = 0) {
+      ctx.clearRect(0, 0, width, height);
+      const cx = width * .72, cy = height * .47;
+      points.forEach((p, i) => {
+        const a = p.angle + t * p.speed;
+        const wobble = 1 + Math.sin(t * .0007 + i) * .08;
+        const x = cx + Math.cos(a) * p.radius * wobble * 1.35;
+        const y = cy + Math.sin(a) * p.radius * wobble;
+        ctx.beginPath(); ctx.arc(x, y, p.size * p.depth, 0, Math.PI * 2);
+        ctx.fillStyle = i % 5 === 0 ? `rgba(70,207,225,${.18 + p.depth * .4})` : `rgba(83,242,189,${.12 + p.depth * .42})`; ctx.fill();
+      });
+      if (!reduced) frame = requestAnimationFrame(drawCloud);
+    }
+    resizeCloud(); drawCloud(); addEventListener('resize', resizeCloud, { passive: true });
+  </script>
+</body>
+</html>
