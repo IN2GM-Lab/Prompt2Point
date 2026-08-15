@@ -291,12 +291,11 @@
       <div class="shell">
         <div class="section-head reveal"><p class="eyebrow">Dynamic previews</p><h2>Meet the dataset in motion.</h2><p class="lede">Five semantically distinct avatars and a combined multi-object scene, rendered from the released volumetric sequences.</p></div>
         <div class="video-toolbar reveal" role="group" aria-label="Filter previews">
-          <button class="filter active" data-filter="all">All sequences</button>
-          <button class="filter" data-filter="single">Single avatar</button>
+          <button class="filter active" data-filter="single">Single avatar</button>
           <button class="filter" data-filter="combined">Composite scene</button>
         </div>
         <div class="video-grid reveal">
-          <article class="video-card featured" data-type="combined"><div class="video-frame"><video src="videos/combined.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Combined scene</h3><span>Multi-object · occlusion-aware</span></div></article>
+          <article class="video-card featured hidden" data-type="combined"><div class="video-frame"><video src="videos/combined.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Combined scene</h3><span>Multi-object · occlusion-aware</span></div></article>
           <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/girl.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Girl</h3><span>Locomotion · acrobatics</span></div></article>
           <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/robot.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Robot</h3><span>Combat · dynamic kicks</span></div></article>
           <article class="video-card" data-type="single"><div class="video-frame"><video src="videos/solider.webm" muted loop playsinline controls preload="metadata"></video></div><div class="video-label"><h3>Soldier</h3><span>Actions · expressive gestures</span></div></article>
@@ -371,7 +370,7 @@
       document.querySelectorAll('.filter').forEach(item => item.classList.remove('active'));
       button.classList.add('active');
       document.querySelectorAll('.video-card').forEach(card => {
-        const show = button.dataset.filter === 'all' || card.dataset.type === button.dataset.filter;
+        const show = card.dataset.type === button.dataset.filter;
         card.classList.toggle('hidden', !show);
         if (!show) card.querySelector('video').pause();
       });
